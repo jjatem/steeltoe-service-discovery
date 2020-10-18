@@ -29,8 +29,7 @@ namespace Consul_Discover_Example
                     logging.AddConsole();
                 })
                 .UseDefaultServiceProvider(configure => configure.ValidateScopes = false)
-                .UseStartup<Startup>()
-                .UseUrls("http://0.0.0.0:8080");
+                .UseStartup<Startup>();
             return builder;
         }
     }

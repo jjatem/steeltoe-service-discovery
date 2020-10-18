@@ -1,0 +1,95 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: consul-register-webapi
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: consul-register-webapi
+  template:
+    metadata:
+      labels:
+        app: consul-register-webapi
+    spec:
+      containers:
+        - name: consul-register-webapi
+          image: jjatem/consul-register:latest
+          ports:
+            - containerPort: 80
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: consul-register-webapi-service
+spec:
+  # This defines which pods are going to be exposed by this service
+  selector:
+    app: consul-register-webapi
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: consul-register-webapi-ingress
+spec:
+  rules:
+    - host: consul-register-api.jjsoft.local
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: consul-register-webapi-service
+              servicePort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: consul-discovery-webapi
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: consul-discovery-webapi
+  template:
+    metadata:
+      labels:
+        app: consul-discovery-webapi
+    spec:
+      containers:
+        - name: consul-discovery-webapi
+          image: jjatem/consul-discovery:latest
+          ports:
+            - containerPort: 80
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: consul-discovery-webapi-service
+spec:
+  # This defines which pods are going to be exposed by this service
+  selector:
+    app: consul-discovery-webapi
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: consul-discovery-webapi-ingress
+spec:
+  rules:
+    - host: consul-discovery-api.jjsoft.local
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: consul-discovery-webapi-service
+              servicePort: 80

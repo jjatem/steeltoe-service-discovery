@@ -1,0 +1,19 @@
+FROM mcr.microsoft.com/dotnet/core/aspnet:3.1 AS base
+WORKDIR /app
+EXPOSE 80
+
+FROM mcr.microsoft.com/dotnet/core/sdk:3.1 AS build
+WORKDIR /src
+COPY ["Consul_Discover_Example/Consul_Discover_Example.csproj", "Consul_Discover_Example/"]
+RUN dotnet restore "Consul_Discover_Example/Consul_Discover_Example.csproj"
+COPY . .
+WORKDIR "/src/Consul_Discover_Example"
+RUN dotnet build "Consul_Discover_Example.csproj" -c Release -o /app/build
+
+FROM build AS publish
+RUN dotnet publish "Consul_Discover_Example.csproj" -c Release -o /app/publish
+
+FROM base AS final
+WORKDIR /app
+COPY --from=publish /app/publish .
+ENTRYPOINT ["dotnet", "Consul_Discover_Example.dll"]
